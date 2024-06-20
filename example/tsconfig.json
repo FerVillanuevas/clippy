@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "clippy": ["../src/index"],
+      "clippy/*": ["../src/*"]
+    }
+  }
+}
