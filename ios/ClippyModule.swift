@@ -1,44 +1,71 @@
+import AVFoundation
 import ExpoModulesCore
+import Foundation
+import Photos
+import SDWebImage
+import UIKit
+import ZLImageEditor
 
 public class ClippyModule: Module {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
-  public func definition() -> ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('Clippy')` in JavaScript.
-    Name("Clippy")
+    var resultImageEditModel: ZLClipStatus?
 
-    // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
-    Constants([
-      "PI": Double.pi
-    ])
+    var promise: Promise!
 
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
+    public func definition() -> ModuleDefinition {
+        Name("Clippy")
 
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      return "Hello world! 👋"
+        AsyncFunction("open") { (path: String, promise: Promise) in
+            getUIImage(url: path, completion: { image in
+                DispatchQueue.main.async {
+                    self.setConfiguration()
+                    self.present(image: image, promise: promise)
+                }
+            }, reject: {
+                promise.reject(Exception(file: "No image found"))
+            })
+        }
     }
 
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { (value: String) in
-      // Send an event to JavaScript.
-      self.sendEvent("onChange", [
-        "value": value
-      ])
+    private func getUIImage(url: String, completion: @escaping (UIImage) -> Void, reject: @escaping () -> Void) {
+        if let path = URL(string: url) {
+            SDWebImageManager.shared.loadImage(with: path, options: .continueInBackground, progress: { _, _, _ in
+            }, completed: { downloadedImage, _, error, _, _, _ in
+                DispatchQueue.main.async {
+                    if error != nil {
+                        reject()
+                    }
+                    if downloadedImage != nil {
+                        completion(downloadedImage!)
+                    }
+                }
+            })
+        } else {
+            reject()
+        }
     }
 
-    // Enables the module to be used as a native view. Definition components that are accepted as part of the
-    // view definition: Prop, Events.
-    View(ClippyView.self) {
-      // Defines a setter for the `name` prop.
-      Prop("name") { (view: ClippyView, prop: String) in
-        print(prop)
-      }
+    private func setConfiguration() {
+        ZLImageEditorConfiguration.default()
+            .showClipDirectlyIfOnlyHasClipTool(true)
+            .editImageTools([.clip, .filter, .adjust])
+            .adjustTools([.brightness, .contrast, .saturation])
+            .clipRatios([.wh1x1, .init(title: "21 : 9", whRatio: 21.0 / 9.0)])
     }
-  }
+
+    private func present(image: UIImage, promise: Promise) {
+        let controller = UIApplication.shared.windows.first?.rootViewController
+
+        ZLEditImageViewController.showEditImageVC(parentVC: controller, image: image, editModel: resultImageEditModel) { resImage, _ in
+            let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
+
+            let destinationPath = URL(fileURLWithPath: documentsPath).appendingPathComponent(String(Int64(Date().timeIntervalSince1970 * 1000)) + ".png")
+
+            do {
+                try resImage.pngData()?.write(to: destinationPath)
+                promise.resolve(destinationPath.absoluteString)
+            } catch {
+                debugPrint("writing file error", error)
+            }
+        }
+    }
 }
