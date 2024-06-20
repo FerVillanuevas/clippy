@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'
-  s.dependency 'ZLImageEditorL'
+  s.dependency 'ZLImageEditor'
   s.dependency 'SDWebImage'
 
   

@@ -6,18 +6,41 @@ import SDWebImage
 import UIKit
 import ZLImageEditor
 
+
+public class ZLImageClipRatioS: NSObject {
+    @objc public var title: String
+    
+    @objc public let whRatio: CGFloat
+        
+    @objc public init(title: String, w: String, h: String) {
+        
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle  = NumberFormatter.Style.decimal
+        numberFormatter.allowsFloats = true
+        let _w = numberFormatter.number(from: w)
+        let _h = numberFormatter.number(from: h)
+        
+        self.title = title
+    
+        self.whRatio = CGFloat(CGFloat(_w!.floatValue) / CGFloat(_h!.floatValue))
+        super.init()
+    }
+}
+
+
 public class ClippyModule: Module {
-    var resultImageEditModel: ZLClipStatus?
+
+    var resultImageEditModel: ZLEditImageModel?
 
     var promise: Promise!
 
     public func definition() -> ModuleDefinition {
         Name("Clippy")
 
-        AsyncFunction("open") { (path: String, promise: Promise) in
+        AsyncFunction("open") { (path: String, wide: Bool, promise: Promise) in
             getUIImage(url: path, completion: { image in
                 DispatchQueue.main.async {
-                    self.setConfiguration()
+                    self.setConfiguration(wide: wide)
                     self.present(image: image, promise: promise)
                 }
             }, reject: {
@@ -44,12 +67,16 @@ public class ClippyModule: Module {
         }
     }
 
-    private func setConfiguration() {
+    private func setConfiguration(wide: Bool) {
+        // Dont know how to add all clipRatios! i just need those two jaja
+        let ratios = wide ? [ZLImageClipRatio(title: "21 : 9", whRatio: 21.0 / 9.0)] : [.wh1x1]
+            
         ZLImageEditorConfiguration.default()
+            .editImageTools([.clip])
             .showClipDirectlyIfOnlyHasClipTool(true)
-            .editImageTools([.clip, .filter, .adjust])
-            .adjustTools([.brightness, .contrast, .saturation])
-            .clipRatios([.wh1x1, .init(title: "21 : 9", whRatio: 21.0 / 9.0)])
+            .clipRatios(
+                ratios
+            )
     }
 
     private func present(image: UIImage, promise: Promise) {

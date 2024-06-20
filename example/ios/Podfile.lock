@@ -2,6 +2,8 @@ PODS:
   - boost (1.83.0)
   - Clippy (0.1.0):
     - ExpoModulesCore
+    - SDWebImage
+    - ZLImageEditor
   - DoubleConversion (1.1.6)
   - EXConstants (16.0.2):
     - ExpoModulesCore
@@ -1201,8 +1203,14 @@ PODS:
     - React-logger (= 0.74.2)
     - React-perflogger (= 0.74.2)
     - React-utils (= 0.74.2)
+  - SDWebImage (5.19.2):
+    - SDWebImage/Core (= 5.19.2)
+  - SDWebImage/Core (5.19.2)
   - SocketRocket (0.7.0)
   - Yoga (0.0.0)
+  - ZLImageEditor (2.0.2):
+    - ZLImageEditor/Core (= 2.0.2)
+  - ZLImageEditor/Core (2.0.2)
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
@@ -1272,7 +1280,9 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - SDWebImage
     - SocketRocket
+    - ZLImageEditor
 
 EXTERNAL SOURCES:
   boost:
@@ -1403,7 +1413,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
-  Clippy: 52a0e74245c4336fa138513746c0abec7992926e
+  Clippy: 8bffbbe6051895e60f6fca93d13a96b018cac90e
   DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
   EXConstants: 409690fbfd5afea964e5e9d6c4eb2c2b59222c59
   Expo: 9c87c876b45a6934894ba5e9353ee94fdba48125
@@ -1463,8 +1473,10 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 56b642bf605ba5afa500d35790928fc1d51565ad
   React-utils: 4476b7fcbbd95cfd002f3e778616155241d86e31
   ReactCommon: ecad995f26e0d1e24061f60f4e5d74782f003f12
+  SDWebImage: dfe95b2466a9823cf9f0c6d01217c06550d7b29a
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   Yoga: ae3c32c514802d30f687a04a6a35b348506d411f
+  ZLImageEditor: f8c0cc62e3ddfb3ebc9924674afcbca4d6f4b0d2
 
 PODFILE CHECKSUM: 3b18f6dd6a44ef8294d8c3bf9550030e6c0543e0
 
